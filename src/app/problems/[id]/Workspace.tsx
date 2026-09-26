@@ -21,17 +21,30 @@ export default function Workspace({ problem }: { problem: Problem }) {
     
     setIsSubmitting(true);
     
-    // In Phase 4, we will actually call the backend API here.
-    // For now, we simulate the submission delay and redirect.
-    console.log("Submitting solution:", solution);
-    
-    // Simulate network delay for MVP Phase 3
-    setTimeout(() => {
-      alert("Submission successful! (Backend integration coming in Phase 4)");
+    try {
+      const response = await fetch("/api/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          problemId: problem.id,
+          solution: solution,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert("Error: " + (data.error || "Failed to evaluate"));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Redirect to the attempt history page so the user can see their feedback
+      router.push(`/history/${data.attemptId}`);
+    } catch (error) {
+      alert("An error occurred during submission.");
       setIsSubmitting(false);
-      // In Phase 4 we will redirect to the results page or history page
-      // router.push(`/history`);
-    }, 1000);
+    }
   };
 
   return (
