@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Problem {
+  id           String    @id @default(cuid())
+  title        String
+  description  String
+  requirements String
+  createdAt    DateTime  @default(now())
+  attempts     Attempt[]
+}
+
+model Attempt {
+  id          String       @id @default(cuid())
+  userId      String       // simple identifier for MVP
+  problemId   String
+  problem     Problem      @relation(fields: [problemId], references: [id])
+  submissions Submission[]
+  createdAt   DateTime     @default(now())
+}
+
+model Submission {
+  id          String      @id @default(cuid())
+  attemptId   String
+  attempt     Attempt     @relation(fields: [attemptId], references: [id])
+  content     String
+  status      String      @default("SUBMITTED") // SUBMITTED, EVALUATING, COMPLETED, FAILED
+  evaluation  Evaluation?
+  createdAt   DateTime    @default(now())
+}
+
+model Evaluation {
+  id           String     @id @default(cuid())
+  submissionId String     @unique
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  score        Int
+  evidence     String
+  concern      String
+  suggestion   String
+  confidence   String
+  rawResponse  String?
+  createdAt    DateTime   @default(now())
+}
