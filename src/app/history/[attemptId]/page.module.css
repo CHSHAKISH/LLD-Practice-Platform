@@ -128,10 +128,18 @@
 
 .feedbackCard {
   background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 1.5rem;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedbackCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
 }
 
 .feedbackCard h3 {
@@ -144,12 +152,24 @@
 }
 
 .feedbackCard p {
-  color: var(--foreground);
+  color: var(--text-muted);
   line-height: 1.6;
   font-size: 0.95rem;
 }
 
-.evidenceCard { border-left: 4px solid #10b981; }
-.concernCard { border-left: 4px solid #f59e0b; }
-.suggestionCard { border-left: 4px solid #3b82f6; }
-.errorCard { border-left: 4px solid #ef4444; }
+.evidenceCard { 
+  border-left: 4px solid #10b981; 
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+.concernCard { 
+  border-left: 4px solid #f59e0b; 
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+.suggestionCard { 
+  border-left: 4px solid #3b82f6; 
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+}
+.errorCard { 
+  border-left: 4px solid #ef4444; 
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+}

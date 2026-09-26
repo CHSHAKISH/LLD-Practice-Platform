@@ -15,14 +15,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f172a;
-    --foreground: #f8fafc;
+    --background: #09090b;
+    --foreground: #fafafa;
     --primary: #3b82f6;
     --primary-hover: #60a5fa;
-    --secondary: #1e293b;
-    --text-muted: #94a3b8;
-    --border: #334155;
-    --card: #1e293b;
+    --secondary: rgba(255, 255, 255, 0.05);
+    --text-muted: #a1a1aa;
+    --border: rgba(255, 255, 255, 0.1);
+    --card: rgba(24, 24, 27, 0.6);
+    --card-hover: rgba(39, 39, 42, 0.8);
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 }
 
@@ -39,6 +41,10 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+  background-attachment: fixed;
   font-family: var(--font-geist-sans), Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

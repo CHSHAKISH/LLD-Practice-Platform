@@ -21,7 +21,23 @@ async function main() {
     }
   })
 
-  console.log('Seeding finished:', parkingLot.title, ',', vendingMachine.title)
+  const elevator = await prisma.problem.create({
+    data: {
+      title: 'Elevator System',
+      description: 'Design a control system for multiple elevators in a multi-story building.',
+      requirements: '- Building has multiple floors and multiple elevators.\n- Elevators have a capacity limit.\n- Users can press a button on any floor to go up or down.\n- Users inside the elevator can press a button to select a destination floor.\n- The system needs an efficient algorithm to dispatch the nearest/most appropriate elevator to minimize wait times.',
+    }
+  })
+
+  const library = await prisma.problem.create({
+    data: {
+      title: 'Library Management System',
+      description: 'Design a system to manage books, patrons, and borrowing operations in a library.',
+      requirements: '- A library has many books. A book can have multiple copies.\n- Patrons can search for books by title, author, or category.\n- Patrons can checkout a maximum of 5 books.\n- Books have a due date (e.g., 14 days from checkout).\n- The system should calculate fines for overdue books when returned.',
+    }
+  })
+
+  console.log('Seeding finished:', parkingLot.title, ',', vendingMachine.title, ',', elevator.title, ',', library.title)
 }
 
 main()

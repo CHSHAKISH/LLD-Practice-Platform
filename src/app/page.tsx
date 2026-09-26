@@ -17,14 +17,6 @@ export default function Home() {
           <Link href="/problems" className={styles.primaryButton}>
             Start Practicing
           </Link>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondaryButton}
-          >
-            View on GitHub
-          </a>
         </div>
 
         <div className={styles.features}>

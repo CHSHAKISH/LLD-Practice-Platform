@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     }
 
     // AI Evaluation
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Use 2.5-flash for speed and JSON structure
+    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" }); // Use 3.6-flash for speed and JSON structure
     
     const prompt = `
 You are an expert software architect evaluating a Low-Level Design (LLD) submission.
@@ -85,8 +85,23 @@ Provide your feedback strictly as a JSON object with the following fields:
 DO NOT INCLUDE ANY MARKDOWN CODE BLOCKS OR EXTRA TEXT OUTSIDE THE JSON OBJECT. Return only valid JSON.
 `;
 
-    const result = await model.generateContent(prompt);
-    let rawText = result.response.text();
+    let rawText = "";
+    try {
+      const result = await model.generateContent(prompt);
+      rawText = result.response.text();
+    } catch (aiError) {
+      console.error("AI Evaluation failed (e.g., 503 Service Unavailable):", aiError);
+      
+      // Update submission status to FAILED gracefully
+      await prisma.submission.update({
+        where: { id: submission.id },
+        data: { status: "FAILED" },
+      });
+      
+      // Return 200 so the frontend can redirect to the history page and show the FAILED state
+      // This answers the design question: "What happens if evaluation fails?"
+      return NextResponse.json({ attemptId: attempt.id, aiFailed: true });
+    }
     
     // Clean up markdown block if the model outputs it anyway
     if (rawText.startsWith("\`\`\`json")) {
@@ -104,10 +119,7 @@ DO NOT INCLUDE ANY MARKDOWN CODE BLOCKS OR EXTRA TEXT OUTSIDE THE JSON OBJECT. R
         where: { id: submission.id },
         data: { status: "FAILED" },
       });
-      return NextResponse.json(
-        { error: "AI Evaluation failed. Invalid output format." },
-        { status: 500 }
-      );
+      return NextResponse.json({ attemptId: attempt.id, parseFailed: true });
     }
 
     // Save Evaluation
@@ -131,7 +143,8 @@ DO NOT INCLUDE ANY MARKDOWN CODE BLOCKS OR EXTRA TEXT OUTSIDE THE JSON OBJECT. R
 
     return NextResponse.json({ attemptId: attempt.id });
   } catch (error) {
-    console.error("Evaluation Error:", error);
+    console.error("Critical Server Error:", error);
+    // If we fail before submission is even created, return 500
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
