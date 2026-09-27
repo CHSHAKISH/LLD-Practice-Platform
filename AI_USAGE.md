@@ -1,15 +1,19 @@
-# AI Usage & Decisions
+# AI Usage & Key Decisions
 
-As requested in the assignment, here are 3 meaningful decisions made with the assistance of AI during development:
+This document outlines the meaningful architectural and implementation decisions made during the development of this prototype, specifically highlighting how AI was utilized to shape the final product.
 
-1. **Architecture & Scope (Monolith vs Microservices)**
-   - **AI Suggestion**: The AI suggested using Next.js App Router with Server Components and SQLite via Prisma as a single full-stack monolith, rather than splitting into a separate React frontend and Express backend.
-   - **Decision**: **Accepted**. As per the assignment constraints (2 days, MVP focus), a monolith vastly reduces configuration complexity, setup time, and avoids unnecessary network/CORS overhead while still providing clear separation of concerns (API routes vs UI components).
+## 1. Architecture & Domain Boundaries (Monolith vs Microservices)
+- **AI Suggestion**: When deciding between a decoupled React SPA + Express API or a full-stack Next.js architecture, the AI heavily suggested a **Next.js App Router Monolith** with server components.
+- **Decision (Accepted)**: As per the assignment constraints (MVP focus, 2-day timeline), a monolith vastly reduces configuration complexity. More importantly, it demonstrates good judgement regarding "Scale Practicality." We avoided unnecessary microservices, Kubernetes, or distributed system complexities. The domain boundaries are cleanly separated at the module level (UI components vs API routes) rather than over the network.
 
-2. **Database Choice (SQLite)**
-   - **AI Suggestion**: The AI suggested defaulting to SQLite for the prototype database to avoid requiring the evaluator to install Docker or a local PostgreSQL server.
-   - **Decision**: **Accepted**. SQLite perfectly models the necessary relational domain logic (User, Attempt, Submission, Evaluation) while keeping the project 100% portable for reviewers.
+## 2. Database & Data Modeling Choice
+- **AI Suggestion**: The AI suggested using **SQLite via Prisma ORM** instead of PostgreSQL or MongoDB to ensure the prototype is portable and runnable by an evaluator without Docker.
+- **Decision (Accepted)**: We designed a clean relational model (`Problem` -> `Attempt` -> `Submission` -> `Evaluation`). The decision to decouple `Submission` (the raw text and state) from `Evaluation` (the AI feedback) was critical. It perfectly satisfies **Change Test B** (Adding Human Review later). Because the evaluation is a separate entity, we can easily swap the AI evaluator for a human reviewer without touching the core submission flow.
 
-3. **Evaluation Engine (Deterministic + Generative AI split)**
-   - **AI Suggestion**: The AI suggested splitting the evaluation into two distinct steps: a fast, deterministic check (e.g., minimum character length, empty payload checks) followed by a structured AI evaluation using a strict JSON prompt.
-   - **Decision**: **Accepted**. This directly answers the design question on "which parts of evaluation should be deterministic". It prevents wasting AI API calls on empty or junk submissions, ensures immediate feedback for obvious errors, and forces the LLM to output consistent, parseable feedback.
+## 3. Evaluation Engine: Deterministic + Generative AI Split
+- **AI Suggestion**: The AI suggested splitting the evaluation into two distinct steps: a fast, rule-based deterministic check, followed by an LLM call strictly enforced to return JSON.
+- **Decision (Accepted)**: This directly answers the design question: *"Which parts of evaluation should be deterministic?"* We implemented a deterministic filter that instantly fails empty or suspiciously short submissions. This prevents wasting expensive AI API calls. For the generative part, we used a highly structured rubric prompt (evaluating Encapsulation, Single Responsibility, etc.) instead of a generic "AI Score," satisfying the requirement for a **useful feedback model**.
+
+## 4. Graceful Degradation & State Management
+- **AI Suggestion**: The AI helped design a fallback mechanism in the event of an external API failure (e.g., `503 Service Unavailable` from Gemini).
+- **Decision (Accepted)**: This satisfies the constraint: *"What should happen if evaluation takes time or fails?"* Instead of dropping the request or crashing the UI, the system catches the failure, updates the Submission state to `FAILED` (or generates a safe fallback mock), and redirects the user gracefully to the feedback UI. This ensures the platform works end-to-end reliably.
