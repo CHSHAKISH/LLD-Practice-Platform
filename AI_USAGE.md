@@ -17,3 +17,6 @@ This document outlines the meaningful architectural and implementation decisions
 ## 4. Graceful Degradation & State Management
 - **AI Suggestion**: The AI helped design a fallback mechanism in the event of an external API failure (e.g., `503 Service Unavailable` from Gemini).
 - **Decision (Accepted)**: This satisfies the constraint: *"What should happen if evaluation takes time or fails?"* Instead of dropping the request or crashing the UI, the system catches the failure, updates the Submission state to `FAILED` (or generates a safe fallback mock), and redirects the user gracefully to the feedback UI. This ensures the platform works end-to-end reliably.
+
+## 5. Deployment Infrastructure (Render vs Vercel)
+We explicitly chose to deploy the prototype to **Render.com** as a Web Service. Unlike Serverless architectures, Render provides a stateful container environment. This allowed us to preserve the simplicity of our local SQLite monolith (meeting the "Keep Scale Practical" requirement) without over-engineering a cloud PostgreSQL database connection just for a prototype.
